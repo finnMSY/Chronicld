@@ -11,18 +11,23 @@ const HomePage = () => {
 
     const [allApps, setAllApps] = useState([]); 
     const [searchedName, setSearchedName] = useState(""); 
-    const [gameData, setGameData] = useState({}); 
-    const [searching, setSearching] = useState(false)
+    const [searching, setSearching] = useState(false);
+    const [noResults, setNoResults] = useState(false);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
+    const gamesPerPage = 40; 
 
     useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const response = await axios.get('http://localhost:8081');
-            setAllApps(response.data.applist.apps);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
+        const fetchData = async () => {
+            try {
+                setSearching(true);
+                const response = await axios.get('http://localhost:8081');
+                setAllApps(response.data.applist.apps);
+                setSearching(false);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setSearching(false);
+            }
+        };
 
         fetchData();
     }, []);
@@ -49,25 +54,36 @@ const HomePage = () => {
         return details;
     }
 
-    const handleOnChange = async (event) => {
+    const handleOnChange = (event) => {
+        setSearching(false);
+        setNoResults(false)
         if (event.target.value === null || event.target.value.match(/^ *$/) !== null) {
-            setSearching(setSearching)
-            setSearchResults(null)
-        }
-        else {
-            setSearchedName(event.target.value)
-            setSearching(true)
+            setSearchResults(null);
+        } else {
+            setSearchedName(event.target.value);
         }
     }
 
     const handleSubmit = async (event) => {
-        event.preventDefault()
-        const results = getAppIdByName(searchedName).slice(0, 50);
+        event.preventDefault();
+        setHasSubmitted(true)
+        setSearching(true);
+    
+        const results = getAppIdByName(searchedName).slice(0, gamesPerPage+5).sort();
         const dataPromise = getAppDetails(results);
         const data = await dataPromise;
-        console.log(data)
-        setSearchResults(data)
+        setSearchResults(data.slice(0, gamesPerPage));
+    
+        setSearching(false);
     }
+
+    useEffect(() => {
+        if (searchResults && searchResults.length === 0) {
+            setNoResults(true);
+        } else {
+            setNoResults(false);
+        }
+    }, [searchResults]);
 
     const handleClick = () => {
         setCurrentPage("rating");
@@ -81,21 +97,22 @@ const HomePage = () => {
                 <input placeholder='Game Name' onChange={handleOnChange}></input>
                 <button type="submit">Submit</button>
             </form>
-            
 
-            {searchResults && searchResults.length > 0 ? (
+            {searching ? (
+                <p>Loading...</p>
+            ) : searchResults && searchResults.length > 0 ? (
                 <div>
-                {searchResults.map((game) => (
-                    <button>
-                        <p>{game['name']}</p>
-                        <img src={game['capsule_image']}></img>
-                    </button>
-                ))}
+                    {searchResults.map((game, index) => (
+                        <button key={index}>
+                            <p>{game['name']}</p>
+                            <img src={game['capsule_image']} alt={game['name']}></img>
+                        </button>
+                    ))}
                 </div>
-            ) : searching && searchResults && searchResults.length === 0 ? (
+            ) : noResults && hasSubmitted ? (
                 <p>No Results</p>
             ) : (
-               <p></p> 
+                <p></p>
             )}
         </div>
     );
