@@ -2,7 +2,11 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import RootContext from "../../providers/root";
 import { debounce } from 'lodash';
+import { Navigation } from "../../components"
 import { RateLimiterMemory } from 'rate-limiter-flexible';
+import Logo from "../../assets/logo.png";
+
+import "./homePage.css";
 
 const HomePage = () => {
     const {
@@ -84,13 +88,13 @@ const HomePage = () => {
                 setSearchResults(cleaned_data);
             }
         }
-     
+        setHasSubmitted(true);
         setSearching(false);
      }, 500);
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setHasSubmitted(true);
+        console.log(searchedName)
     }
 
     useEffect(() => {
@@ -106,30 +110,36 @@ const HomePage = () => {
     };
 
     return (
-        <div>
-            <h1>Home Page</h1>
-            <button onClick={handleClick}>Page 2</button><br />
-            <form onSubmit={handleSubmit}>
+        <div className="home_page">
+            < Navigation/>
+            <div className="title">
+                <img src={Logo}></img>
+            </div>
+            
+            {/* <button onClick={handleClick}>Page 2</button><br /> */}
+
+            <form onSubmit={handleSubmit} className="search_bar">
                 <input placeholder='Game Name' onKeyUp={handleOnChange}></input>
                 <button type="submit">Submit</button>
             </form>
 
-            {searching ? (
-                <p>Loading...</p>
-            ) : searchResults && searchResults.length > 0 ? (
-                <div>
-                    {searchResults.map((game, index) => (
-                        <button key={index}>
-                            <p>{game['name']}</p>
-                            <img src={game['capsule_image']} alt={game['name']}></img>
-                        </button>
-                    ))}
-                </div>
-            ) : noResults && hasSubmitted ? (
-                <p>No Results</p>
-            ) : (
-                <p></p>
-            )}
+            <div className="search_results">
+                {searching ? (
+                    <p>Loading...</p>
+                ) : searchResults && searchResults.length > 0 ? (
+                    <div>
+                        {searchResults.map((game, index) => (
+                            <button key={index} onClick={() => console.log(game['name'])}>
+                                <img src={game['capsule_image']} alt={game['name']}></img>
+                            </button>
+                        ))}
+                    </div>
+                ) : noResults && hasSubmitted ? (
+                    <p>No Results</p>
+                ) : (
+                    <p></p>
+                )}
+            </div>
         </div>
     );
 };
