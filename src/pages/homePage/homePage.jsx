@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import RootContext from "../../providers/root";
 import { debounce } from 'lodash';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 const HomePage = () => {
     const {
@@ -40,11 +41,17 @@ const HomePage = () => {
         return ids;
     }
 
+    const rateLimiter = new RateLimiterMemory({
+        points: 10, // Number of requests
+        duration: 1, // Per second
+    });
+
     async function getAppDetails(appIDs) {
         const urls = appIDs.map(item => `http://localhost:8081/app_data/${item}`);
         const details = await Promise.all(
             urls.map(async (url, index) => {
                 try {
+                    await rateLimiter.consume(url);
                     const response = await axios.get(url);
                     return response.data[appIDs[index]].data;
                 } catch (error) {
@@ -56,39 +63,6 @@ const HomePage = () => {
         return details;
     }
 
-    // function debounce(func, timeout = 500) {
-    //     let timer;
-    //     return (...args) => {
-    //         clearTimeout();
-    //         timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    //     };
-    // }
-
-    // const loadResults = async (event) => {
-    //     setSearching(true);
-    //     setNoResults(false);
-    //     setHasSubmitted(false);
-    //     const inputValue = event.target.value;
-    
-    //     if (inputValue === null || inputValue.match(/^ *$/) !== null) {
-    //         setSearchResults(null);
-    //     } else {
-    //         setSearchedName(inputValue);
-    //         const results = getAppIdByName(inputValue).slice(0, gamesPerPage + 5).sort();
-    //         const data = await getAppDetails(results);
-    //         const cleaned_data = data.filter(array => array !== undefined);
-    //         console.log(cleaned_data);
-        
-    //         if (cleaned_data.length > gamesPerPage) {
-    //             setSearchResults(cleaned_data.slice(0, gamesPerPage));
-    //         } else {
-    //             setSearchResults(cleaned_data);
-    //         }
-    //     }
-    
-    //     setSearching(false);
-    // }
-
     const handleOnChange = debounce(async (event) => {
         setSearching(true);
         setNoResults(false);
@@ -99,7 +73,7 @@ const HomePage = () => {
             setSearchResults(null);
         } else {
             setSearchedName(inputValue);
-            const results = getAppIdByName(inputValue).slice(0, gamesPerPage + 5).sort();
+            const results = getAppIdByName(inputValue).slice(0, gamesPerPage * 3).sort();
             const data = await getAppDetails(results);
             const cleaned_data = data.filter(array => array !== undefined);
             console.log(cleaned_data);
