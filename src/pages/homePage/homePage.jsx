@@ -13,133 +13,119 @@ const HomePage = () => {
         setCurrentPage,
         searchResults,
         setSearchResults,
+        setSelectedGame,
+        setFullSearchResults
     } = useContext(RootContext);
 
-    const [allApps, setAllApps] = useState([]); 
-    const [searchedName, setSearchedName] = useState(""); 
-    const [searching, setSearching] = useState(false);
-    const [noResults, setNoResults] = useState(false);
-    const [hasSubmitted, setHasSubmitted] = useState(false);
-    const gamesPerPage = 5; 
+    // const [allApps, setAllApps] = useState([]); 
+    // const [searchedName, setSearchedName] = useState(""); 
+    // const [searching, setSearching] = useState(false);
+    // const [noResults, setNoResults] = useState(false);
+    // const [hasSubmitted, setHasSubmitted] = useState(false);
+    // const gamesPerPage = 5; 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setSearching(true);
-                const response = await axios.get('http://localhost:8081');
-                setAllApps(response.data.applist.apps);
-                setSearching(false);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setSearching(false);
-            }
-        };
+    // useEffect(() => {
+    //     setSearchResults([])
+    //     const fetchData = async () => {
+    //         try {
+    //             setSearching(true);
+    //             const response = await axios.get('http://localhost:8081');
+    //             setAllApps(response.data.applist.apps);
+    //             setSearching(false);
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //             setSearching(false);
+    //         }
+    //     };
 
-        fetchData();
-    }, []);
+    //     fetchData();
+    // }, []);
 
-    function getAppIdByName(appName) {
-        const ids = allApps
-            .filter(id => id.name.toLowerCase().includes(appName.toLowerCase()))
-            .map(app => app.appid);
-        return ids;
-    }
+    // function getAppIdByName(appName) {
+    //     const ids = allApps
+    //         .filter(id => id.name.toLowerCase().includes(appName.toLowerCase()))
+    //         .map(app => app.appid);
+    //     return ids;
+    // }
 
-    const rateLimiter = new RateLimiterMemory({
-        points: 10, // Number of requests
-        duration: 1, // Per second
-    });
+    // const rateLimiter = new RateLimiterMemory({
+    //     points: 10, // Number of requests
+    //     duration: 1, // Per second
+    // });
 
-    async function getAppDetails(appIDs) {
-        const urls = appIDs.map(item => `http://localhost:8081/app_data/${item}`);
-        const details = await Promise.all(
-            urls.map(async (url, index) => {
-                try {
-                    await rateLimiter.consume(url);
-                    const response = await axios.get(url);
-                    return response.data[appIDs[index]].data;
-                } catch (error) {
-                    console.error('Error fetching data:', error);
-                }
-            })
-        );
+    // async function getAppDetails(appIDs) {
+    //     const urls = appIDs.map(item => `http://localhost:8081/app_data/${item}`);
+    //     const details = await Promise.all(
+    //         urls.map(async (url, index) => {
+    //             try {
+    //                 await rateLimiter.consume(url);
+    //                 const response = await axios.get(url);
+    //                 return response.data[appIDs[index]].data;
+    //             } catch (error) {
+    //                 console.error('Error fetching data:', error);
+    //             }
+    //         })
+    //     );
 
-        return details;
-    }
+    //     return details;
+    // }
 
-    const handleOnChange = debounce(async (event) => {
-        setSearching(true);
-        setNoResults(false);
-        setHasSubmitted(false);
-        const inputValue = event.target.value;
+    // const handledSelectedGame = (Game) => {
+    //     setSelectedGame(Game)
+    //     setCurrentPage("selected_game");
+    // }
+
+    // const handleAdvancedSearch = () => {
+    //     console.log(searchedName)
+    //     setCurrentPage("advanced_search");
+    // }
+
+    // const handleOnChange = debounce(async (event) => {
+    //     setSearching(true);
+    //     setNoResults(false);
+    //     setHasSubmitted(false);
+    //     const inputValue = event.target.value;
      
-        if (inputValue === null || inputValue.match(/^ *$/) !== null) {
-            setSearchResults(null);
-        } else {
-            setSearchedName(inputValue);
-            const results = getAppIdByName(inputValue).slice(0, gamesPerPage * 3).sort();
-            const data = await getAppDetails(results);
-            const cleaned_data = data.filter(array => array !== undefined);
-            console.log(cleaned_data);
+    //     if (inputValue === null || inputValue.match(/^ *$/) !== null) {
+    //         setSearchResults(null);
+    //     } else {
+    //         setSearchedName(inputValue);
+    //         const results = getAppIdByName(inputValue).slice(0, gamesPerPage * 3).sort();
+    //         const data = await getAppDetails(results);
+    //         const cleaned_data = data.filter(array => array !== undefined);
+    //         //console.log(cleaned_data);
      
-            if (cleaned_data.length > gamesPerPage) {
-                setSearchResults(cleaned_data.slice(0, gamesPerPage));
-            } else {
-                setSearchResults(cleaned_data);
-            }
-        }
-        setHasSubmitted(true);
-        setSearching(false);
-     }, 500);
+    //         if (cleaned_data.length > gamesPerPage) {
+    //             setSearchResults(cleaned_data.slice(0, gamesPerPage));
+    //         } else {
+    //             setSearchResults(cleaned_data);
+    //         }
+    //         setFullSearchResults(cleaned_data)
+    //     }
+    //     setHasSubmitted(true);
+    //     setSearching(false);
+    //  }, 500);
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log(searchedName)
-    }
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     handleAdvancedSearch()
+    // }
 
-    useEffect(() => {
-        if (searchResults && searchResults.length === 0) {
-            setNoResults(true);
-        } else {
-            setNoResults(false);
-        }
-    }, [searchResults]);
+    // useEffect(() => {
+    //     if (searchResults && searchResults.length === 0) {
+    //         setNoResults(true);
+    //     } else {
+    //         setNoResults(false);
+    //     }
+    // }, [searchResults]);
 
-    const handleClick = () => {
-        setCurrentPage("rating");
-    };
+    // const handleClick = () => {
+    //     setCurrentPage("rating");
+    // };
 
     return (
-        <div className="home_page">
+        <div className="home_page page">
             < Navigation/>
-            <div className="title">
-                <img src={Logo}></img>
-            </div>
-            
-            {/* <button onClick={handleClick}>Page 2</button><br /> */}
-
-            <form onSubmit={handleSubmit} className="search_bar">
-                <input placeholder='Game Name' onKeyUp={handleOnChange}></input>
-                <button type="submit">Submit</button>
-            </form>
-
-            <div className="search_results">
-                {searching ? (
-                    <p>Loading...</p>
-                ) : searchResults && searchResults.length > 0 ? (
-                    <div>
-                        {searchResults.map((game, index) => (
-                            <button key={index} onClick={() => console.log(game['name'])}>
-                                <img src={game['capsule_image']} alt={game['name']}></img>
-                            </button>
-                        ))}
-                    </div>
-                ) : noResults && hasSubmitted ? (
-                    <p>No Results</p>
-                ) : (
-                    <p></p>
-                )}
-            </div>
         </div>
     );
 };

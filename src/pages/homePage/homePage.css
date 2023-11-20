@@ -2,12 +2,6 @@
     margin-top: 100px;
   }
 
-.home_page {
-    margin: auto;
-    width: 75%;
-    height: 100vh;
-}
-
 .home_page .title img {
     width: 55%;
 }
@@ -17,7 +11,7 @@
     margin-top: 100px;
     margin-bottom: 25px;
 }
-
+/* 
 .home_page .search_bar {
     width: 75%;
     margin: auto;
@@ -62,4 +56,4 @@ textarea:focus, input:focus{
     background-color: transparent;
     background-repeat: no-repeat;
     cursor: pointer;
-}
+} */

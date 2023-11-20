@@ -1,2 +1,3 @@
 export { default as HomePage } from "./homePage/homePage";
-export { default as RatingPage } from "./ratingPage/ratingPage";
+export { default as AdvSearch } from "./advSearch/advSearch";
+export { default as Game } from "./game/game";

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import RootContext from "./providers/root";
-import { HomePage, RatingPage } from "./pages";
+import { HomePage, AdvSearch, Game } from "./pages";
 import "./App.css";
 
 export const PageName = "HomePage" | "RatingPage";
@@ -9,13 +9,16 @@ export const PageName = "HomePage" | "RatingPage";
 const App = () => {
   const [currentPage, setCurrentPage] = useState(PageName);
   const [searchResults, setSearchResults] = useState([]);
+  const [fullSearchResults, setFullSearchResults] = useState([]);
+  const [selectedGame, setSelectedGame] = useState("");
 
   // Root page navigation setup.
   const renderPage = () => {
-    console.log(currentPage)
     switch (currentPage) {
-      case "rating":
-        return <RatingPage />;
+      case "advanced_search":
+        return <AdvSearch />;
+      case "selected_game":
+        return <Game />
       default:
         return <HomePage />;
     }
@@ -27,7 +30,11 @@ const App = () => {
         value={{
           searchResults,
           setSearchResults,
-          setCurrentPage
+          setCurrentPage,
+          selectedGame,
+          setSelectedGame,
+          setFullSearchResults,
+          fullSearchResults
         }}
       >
         {renderPage()}

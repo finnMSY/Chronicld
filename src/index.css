@@ -8,3 +8,9 @@ body {
   background-color: #202830;
   color: white;
 }
+
+.page {
+  margin: auto;
+  width: 75%;
+  height: 100vh;
+}
