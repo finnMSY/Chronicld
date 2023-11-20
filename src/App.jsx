@@ -31,6 +31,7 @@ const App = () => {
           searchResults,
           setSearchResults,
           setCurrentPage,
+          currentPage,
           selectedGame,
           setSelectedGame,
           setFullSearchResults,

@@ -5,6 +5,7 @@ import RootContext from "../../providers/root";
 import { debounce } from 'lodash';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import Logo from "../../assets/logo.png";
+import SearchIcon from "../../assets/search-icon.svg";
 
 const Navigation = () => {
   const {
@@ -23,6 +24,8 @@ const Navigation = () => {
   const gamesPerPage = 5; 
   const dropdownRef = useRef(null);
   const [visible, setVisible] = useState(true)
+  const [searchPerformed, setSearchPerformed] = useState(false);
+
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -114,7 +117,7 @@ const Navigation = () => {
         } else {
             setSearchResults(cleaned_data);
         }
-        setFullSearchResults(cleaned_data)
+        setSearchPerformed(cleaned_data)
     }
     setHasSubmitted(true);
     setSearching(false);
@@ -122,7 +125,12 @@ const Navigation = () => {
 
   const handleSubmit = (event) => {
       event.preventDefault();
-      handleAdvancedSearch()
+
+      if (searchResults && searchResults.length != 0) {
+        setVisible(false);
+        setFullSearchResults(searchPerformed)
+        handleAdvancedSearch()
+      }
   }
 
   useEffect(() => {
@@ -140,12 +148,13 @@ const Navigation = () => {
           <li className="search_li">
             <form onSubmit={handleSubmit} className="search_bar">
               <input placeholder='Game Name' onKeyUp={handleOnChange} onClick={() => setVisible(true)}></input>
-              <button type="submit">S</button>
+              <button type="submit"><img src={SearchIcon}></img></button>
             </form>
+
             {visible &&
             <div className="search_results" ref={dropdownRef}>
                 {searching ? (
-                    <p>Loading...</p>
+                    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
                 ) : searchResults && searchResults.length > 0 ? (
                     <div>
                     {searchResults.map((game, index) => (
@@ -154,9 +163,12 @@ const Navigation = () => {
                           <p>{game['name']}</p>
                       </button>
                     ))}
+                    <span className="buffer"></span>
                     </div>
                 ) : noResults && hasSubmitted ? (
-                    <p>No Results</p>
+                    <div className="no_results">
+                        <p>No Results</p>
+                    </div>
                 ) : (
                     <p></p>
                 )}
